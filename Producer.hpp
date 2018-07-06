@@ -18,7 +18,7 @@ class Producer {
  public:
   void produce(T item) {
 	std::unique_lock<std::mutex> lock(log_list_mutex);
-	log_list.emplace_back(item);
+	log_list.emplace_back(std::move(item));
 	lock.unlock();
 	semaphore_.notify();
   }
