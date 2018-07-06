@@ -1,9 +1,9 @@
 //
-// Created by bandyer on 05/07/18.
+// Created by Equod on 05/07/18.
 //
 
-#ifndef PRODUCINGSERVICE_H
-#define PRODUCINGSERVICE_H
+#ifndef PATTERN_PRODUCER_CONSUMING_SERVICE_H
+#define PATTERN_PRODUCER_CONSUMING_SERVICE_H
 
 #include <thread>
 #include "Producer.hpp"
@@ -76,4 +76,4 @@ class ProducerConsumingService : public Producer<T> {
 
 }
 
-#endif // PRODUCINGSERVICE_H
+#endif // PATTERN_PRODUCER_CONSUMING_SERVICE_H

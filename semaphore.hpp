@@ -1,5 +1,5 @@
 //
-// Created by bandyer on 06/07/18.
+// Created by Equod on 06/07/18.
 //
 
 #ifndef PATTERN_SEMAPHORE_H

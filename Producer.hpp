@@ -1,5 +1,5 @@
 //
-// Created by bandyer on 05/07/18.
+// Created by Equod on 05/07/18.
 //
 
 #ifndef PATTERN_PRODUCER_H
