@@ -6,18 +6,18 @@
 #define PRODUCINGSERVICE_H
 
 #include <thread>
-#include "Producer.h"
-#include "Consumer.h"
+#include "Producer.hpp"
+#include "Consumer.hpp"
 
 namespace pattern {
 
 template<typename T>
 class ProducerConsumingService : public Producer<T> {
  public:
-  struct StartMode { enum Mode { OnConstruction, Later }; };
-  explicit ProducerConsumingService(StartMode::Mode mode = StartMode::OnConstruction)
-	  : keep_consumer_running{false} {
-    if (mode == StartMode::OnConstruction) {
+  enum Mode { OnConstruction, Later };
+  explicit ProducerConsumingService(Consumer<T>* consumer = nullptr, Mode mode = OnConstruction)
+	  : keep_consumer_running{false}, consumer_{consumer} {
+    if (mode == OnConstruction) {
 	  StartConsumingService();
 	}
   }

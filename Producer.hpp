@@ -8,7 +8,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <list>
-#include "Consumer.h"
+#include "Consumer.hpp"
 
 namespace pattern {
 
