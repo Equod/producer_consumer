@@ -14,19 +14,24 @@ namespace pattern {
 template<typename T>
 class ProducerConsumingService : public Producer<T> {
  public:
-  enum Mode { OnConstruction, Later };
-  explicit ProducerConsumingService(Consumer<T>* consumer = nullptr, Mode mode = OnConstruction)
+  struct StartMode{ enum Mode { OnConstruction, Later }; };
+  explicit ProducerConsumingService(Consumer<T>* consumer = nullptr,
+  	typename StartMode::Mode mode = StartMode::OnConstruction)
 	  : keep_consumer_running{false}, consumer_{consumer} {
-    if (mode == OnConstruction) {
+    if (mode == StartMode::OnConstruction) {
 	  StartConsumingService();
 	}
+  }
+
+  virtual ~ProducerConsumingService() {
+	StopConsumingService();
   }
 
   void StartConsumingService() {
 	std::lock_guard<std::mutex> lk(consuming_thread_mutex);
 	if(!consuming_thread) {
 	  keep_consumer_running = true;
-	  consuming_thread = std::make_unique<std::thread>(consumer_runner);
+	  consuming_thread = std::make_unique<std::thread>(consumer_runner, this);
 	}
   }
 
@@ -39,20 +44,25 @@ class ProducerConsumingService : public Producer<T> {
 	std::lock_guard<std::mutex> lk(consuming_thread_mutex);
 	if (consuming_thread) {
 	  keep_consumer_running = false;
+	  Producer<T>::semaphore_.notify();
 	  consuming_thread->join();
 	}
   }
 
  protected:
-  void consumer_runner() {
-    while (keep_consumer_running) {
-	  std::unique_lock<std::mutex> locker(log_list_mutex);
-	  cv.wait(locker, [this]() { return !log_list.empty(); });
-	  auto item = std::move(log_list.front());
-	  log_list.pop_front();
-	  locker.unlock();
-	  std::lock_guard<std::mutex> lk(consumer_mutex);
-	  consumer_->Consume(item);
+  static void consumer_runner(ProducerConsumingService* this_service) {
+    while (this_service->keep_consumer_running) {
+	  this_service->log_list_mutex.lock();
+	  if(!this_service->log_list.empty()) {
+		auto item = std::move(this_service->log_list.front());
+		this_service->log_list.pop_front();
+		this_service->log_list_mutex.unlock();
+		std::lock_guard<std::mutex> lk(this_service->consumer_mutex);
+		this_service->consumer_->Consume(item);
+	  } else {
+		this_service->log_list_mutex.unlock();
+		this_service->semaphore_.wait();
+	  }
 	}
   }
 

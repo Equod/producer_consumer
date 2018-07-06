@@ -15,4 +15,4 @@ class Consumer {
 
 }
 
-#endif //ERIZO_ALL_CONSUMER_H
+#endif // PATTERN_CONSUMER_H
